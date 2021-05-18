@@ -1,4 +1,6 @@
-import org.junit.jupiter.api.Test;
+/*import org.junit.jupiter.api.Test;
+
+import java.util.InputMismatchException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -20,41 +22,11 @@ class NemIdAuthorizerTest {
 
        // Assert
        assertEquals(true,cprTestTrue);
-       assertEquals(false,cprTestFalse);
-       assertEquals(false,cprTestFalse2);
-       assertEquals(false,cprTestFalse3);
+       assertEquals(new InputMismatchException(),cprTestFalse);
+       assertEquals(new InputMismatchException(),cprTestFalse2);
+       assertEquals(new InputMismatchException(),cprTestFalse3);
 
     }
 }
 
-/*
-package unit_tests;
-
-import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-class AgeValidatorTest {
-
-    @Test
-    void isLegalAge() {
-        //Arrange
-        AgeValidator validator = new AgeValidator();
-        //Act
-        String legalAge = validator.isLegalAge(18);
-
-        String illegalAge = validator.isLegalAge(17);
-        String illegalAge2 = validator.isLegalAge(1);
-
-        String illegalInput = validator.isLegalAge(-5);
-
-        //Assert
-        assertEquals("Legal age",legalAge);
-
-        assertEquals("not legal",illegalAge);
-        assertEquals("not legal",illegalAge2);
-
-        assertEquals("Illegal",illegalInput);
-    }
-}
- */
+*/
