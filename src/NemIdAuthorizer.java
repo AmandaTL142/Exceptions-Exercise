@@ -23,17 +23,8 @@ import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
 
 public class NemIdAuthorizer {
-    public void fileReader(){
-        try {
-            File file = new File("src/Source");
-            Scanner fileScanner = new Scanner(file);
-        } catch (FileNotFoundException e) {
-            System.out.println("Fil mangler.");
-        }
 
-    }
-
-    static boolean isValidInput(String cpr, String password) throws InputMismatchException{
+    static boolean isValidInput(String cpr, String password) {
         if(cpr.length() != 10 || !isNumeric(cpr) || parseInt(cpr.substring(0,2))>31 || parseInt(cpr.substring(2,4))>12
                 || parseInt(cpr.substring(0,2))==00 || parseInt(cpr.substring(2,4))==00){
             throw new InputMismatchException();
@@ -41,6 +32,23 @@ public class NemIdAuthorizer {
         else{
             return true;
         }
+    }
+
+    static boolean userExists(File file, String cpr, String password) throws FileNotFoundException, NoSuchUserException {
+        boolean result = false;
+
+        Scanner fileScanner = new Scanner(file);
+        while (fileScanner.hasNextLine()) {
+            if (fileScanner.nextLine().equals(cpr + ";" + password)) {
+                result = true;
+            }
+        }
+        if (result == true) {
+            return true;
+        } else {
+            throw new NoSuchUserException();
+        }
+
     }
 
     public static void main(String[] args) {
@@ -54,8 +62,9 @@ public class NemIdAuthorizer {
         while (!end) {
             try {
                 isValidInput(cprInput, passwordInput);
-
                 File file = new File("src/Source");
+                userExists(file, cprInput, passwordInput);
+
                 Scanner fileScanner = new Scanner(file);
 
                 //Skipper metadatalinjen
@@ -78,7 +87,17 @@ public class NemIdAuthorizer {
                 end = true;
                 break;
             } catch (InputMismatchException exception) {
-                System.out.println("Input ikke forstået. Prøv igen.\nIndtast CPR nummer:");
+                System.out.println("Ugyldigt CPR-nummer. Prøv igen.\nIndtast CPR nummer:");
+                cprInput = sc.nextLine();
+                System.out.println("Indtast kodeord:");
+                passwordInput = sc.nextLine();
+            } catch(FileNotFoundException exception){
+                System.out.println("Filen findes ikke. Prøv igen.\nIndtast CPR nummer:");
+                cprInput = sc.nextLine();
+                System.out.println("Indtast kodeord:");
+                passwordInput = sc.nextLine();
+            }catch(NoSuchUserException exception){
+                System.out.println("Brugeren findes ikke. Prøv igen.\nIndtast CPR nummer:");
                 cprInput = sc.nextLine();
                 System.out.println("Indtast kodeord:");
                 passwordInput = sc.nextLine();
@@ -98,15 +117,10 @@ public class NemIdAuthorizer {
     }
 
 
-/*
-public class NoSuchUserException extends  {
-    NoSuchUserException(){
-        super("Bruger findes ikke");
+    public static class NoSuchUserException extends Exception {
+        public NoSuchUserException() {
+            super();
+        }
     }
-}
-
- */
-
 
 }
-
