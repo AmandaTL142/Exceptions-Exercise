@@ -24,54 +24,27 @@ import static java.lang.Long.parseLong;
 
 public class NemIdAuthorizer {
 
-    static boolean isValidInput(String cpr, String password) {
-        if(cpr.length() != 10 || !isNumeric(cpr) || parseInt(cpr.substring(0,2))>31 || parseInt(cpr.substring(2,4))>12
-                || parseInt(cpr.substring(0,2))==00 || parseInt(cpr.substring(2,4))==00){
-            throw new InputMismatchException();
-        }
-        else{
-            return true;
-        }
-    }
-
-    static boolean userExists(File file, String cpr, String password) throws FileNotFoundException, NoSuchUserException {
-        boolean result = false;
-
-        Scanner fileScanner = new Scanner(file);
-        while (fileScanner.hasNextLine()) {
-            if (fileScanner.nextLine().equals(cpr + ";" + password)) {
-                result = true;
-            }
-        }
-        if (result == true) {
-            return true;
-        } else {
-            throw new NoSuchUserException();
-        }
-
-    }
-
+    //Her kaldes alle metoderne, og exceptions catches.
     public static void main(String[] args) {
-        System.out.println("Indtast dit CPR-nummeruden bindestreg:");
-        Scanner sc = new Scanner(System.in);
-        String cprInput = sc.nextLine();
-        System.out.println("Indtast kodeord:");
-        String passwordInput = sc.nextLine();
-
         boolean end = false;
         while (!end) {
             try {
+                System.out.println("Indtast dit CPR-nummer uden bindestreg:");
+                Scanner sc = new Scanner(System.in);
+                String cprInput = sc.nextLine();
+                System.out.println("Indtast kodeord:");
+                String passwordInput = sc.nextLine();
+
                 isValidInput(cprInput, passwordInput);
                 File file = new File("src/Source");
-                userExists(file, cprInput, passwordInput);
-
                 Scanner fileScanner = new Scanner(file);
-
+                userExists(fileScanner, cprInput, passwordInput);
+                Scanner fileScanner2 = new Scanner(file);
                 //Skipper metadatalinjen
-                fileScanner.nextLine();
+                fileScanner2.nextLine();
 
-                while (fileScanner.hasNext()) {
-                    String currentUser = fileScanner.nextLine();
+                while (fileScanner2.hasNext()) {
+                    String currentUser = fileScanner2.nextLine();
 
                     String [] userArray = currentUser.split(";");
 
@@ -83,25 +56,48 @@ public class NemIdAuthorizer {
                 }
 
 
-                System.out.println("CPR er indtastet.");
+                System.out.println("Dit NemID er gyldigt.");
                 end = true;
                 break;
-            } catch (InputMismatchException exception) {
-                System.out.println("Ugyldigt CPR-nummer. Prøv igen.\nIndtast CPR nummer:");
-                cprInput = sc.nextLine();
-                System.out.println("Indtast kodeord:");
-                passwordInput = sc.nextLine();
-            } catch(FileNotFoundException exception){
-                System.out.println("Filen findes ikke. Prøv igen.\nIndtast CPR nummer:");
-                cprInput = sc.nextLine();
-                System.out.println("Indtast kodeord:");
-                passwordInput = sc.nextLine();
-            }catch(NoSuchUserException exception){
-                System.out.println("Brugeren findes ikke. Prøv igen.\nIndtast CPR nummer:");
-                cprInput = sc.nextLine();
-                System.out.println("Indtast kodeord:");
-                passwordInput = sc.nextLine();
+            } catch (InputMismatchException | FileNotFoundException | NoSuchUserException | WrongPasswordExceptions exception ) {
+                System.out.println(exception);
             }
+        }
+
+    }
+
+
+    //Denne metode tester, om CPR- og passwordinputtet overholder kravene og returnerer resultatet som en boolean-værdi.
+    static boolean isValidInput(String cpr, String password) throws WrongPasswordExceptions {
+        if(cpr.length() != 10 || !isNumeric(cpr) || parseInt(cpr.substring(0,2))>31 || parseInt(cpr.substring(2,4))>12
+                || parseInt(cpr.substring(0,2))==00 || parseInt(cpr.substring(2,4))==00){
+            throw new InputMismatchException("Ugyldigt CPR-nummer. Prøv igen.");
+        }
+        else{
+            if(password.length()!=4 || !isNumeric(password)){
+                throw new WrongPasswordExceptions("Forkert password. Prøv igen.");
+            } else{
+                return true;
+            }
+        }
+    }
+
+
+
+
+    //Denne metode scanner en fil for at se, om en bruger eksisterer.
+    static boolean userExists(Scanner fileScanner, String cpr, String password) throws NoSuchUserException {
+        boolean result = false;
+
+        while (fileScanner.hasNextLine()) {
+            if (fileScanner.nextLine().equals(cpr + ";" + password)) {
+                result = true;
+            }
+        }
+        if (result == true) {
+            return true;
+        } else {
+            throw new NoSuchUserException("Brugeren findes ikke. Prøv igen.");
         }
 
     }
@@ -116,10 +112,17 @@ public class NemIdAuthorizer {
         }
     }
 
-
+    //Her opretter jeg min egen exception, som opgaven dikterer det.
     public static class NoSuchUserException extends Exception {
-        public NoSuchUserException() {
-            super();
+        public NoSuchUserException(String errorMessage) {
+            super(errorMessage);
+        }
+    }
+
+    //Her opretter jeg en ekstra custom exception, så jeg kan skelne mellem forkert CPR og forkert password.
+    public static class WrongPasswordExceptions extends Exception {
+        public WrongPasswordExceptions(String errorMessage) {
+            super(errorMessage);
         }
     }
 

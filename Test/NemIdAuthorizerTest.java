@@ -1,3 +1,5 @@
+//Denne del blev lavet i undervisningen, da vi lærte om unit-tests og er ikke relevant for løsningen af opgaven.
+
 /*import org.junit.jupiter.api.Test;
 
 import java.util.InputMismatchException;
